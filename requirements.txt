@@ -1,0 +1,6 @@
+google-genai
+openai
+requests
+python-dotenv
+matplotlib
+Pillow
