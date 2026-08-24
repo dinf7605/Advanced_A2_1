@@ -159,23 +159,42 @@ def safe_reason(exc: BaseException, limit: int = 120) -> str:
 
 
 # ── 마지막 요약 ──────────────────────────────────────────────────────
-def print_summary(result: dict, out_dir: str, errors: list, elapsed: float) -> None:
+def print_summary(
+    result: dict,
+    out_dir: str,
+    errors: list,
+    elapsed: float,
+    *,
+    result_path: str | None,
+) -> None:
+    """마지막 요약. result_path가 None이면 결과 JSON 저장에 실패한 것이다.
+
+    result_path를 받는 이유: 저장 실패를 모르면 **없는 파일을 "저장됨"으로
+    안내**하게 됩니다. 요건 8의 유일한 필수 산출물이므로 여기서 반드시
+    구분해야 합니다.
+    """
     line = "-" * 60
     print()
     print(line)
-    if errors:
+
+    if result_path is None:
+        print("❌ 결과 JSON을 저장하지 못했습니다 — 요건상 필수 산출물이 없습니다.")
+    elif errors:
         print(f"⚠️  {len(errors)}건의 오류가 있었지만 나머지 결과는 저장되었습니다.")
-        for err in errors:
-            print(f"   · [{err['step']}/{err['type']}] {err['message']}")
     else:
         print("✅ 모든 단계가 정상 완료되었습니다.")
+
+    for err in errors:
+        print(f"   · [{err['step']}/{err['type']}] {err['message']}")
     print(line)
 
     assets = result.get("assets") or {}
-    saved = ["brand_result.json"]
+    saved = ["brand_result.json"] if result_path else []
     if assets.get("palette_image"):
         saved.append(assets["palette_image"])
     saved.extend(assets.get("logos") or [])
     for name in saved:
         print(f"📁 {out_dir.rstrip('/')}/{name}")
+    if not saved:
+        print("📁 저장된 파일이 없습니다.")
     print(f"소요 시간: {elapsed:.1f}초")

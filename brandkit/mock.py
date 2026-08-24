@@ -27,7 +27,7 @@ MODES = {
     "bad_hex": "HEX에 색 이름을 반환 → 기본 팔레트 대체 확인 (E9 재현)",
 }
 
-LLM_STEPS = ("naming", "slogan", "story", "palette", "competitor", "logo_prompt")
+LLM_STEPS = ("naming", "slogan", "story", "palette", "competitor")
 
 
 def enabled() -> bool:
@@ -84,7 +84,13 @@ def response(step: str, brief: dict) -> dict | None:
                     "meaning": "반복되어 하나의 결을 이루는 무늬.",
                     "rationale": "일상의 반복이 곧 브랜드의 태도라는 관점.",
                 },
-            ]
+            ],
+            # 로고 프롬프트에 넣을 영문 재료. 별도 호출이 아니라 이 응답에 함께 옵니다.
+            "english_concept": {
+                "industry_en": "eco-friendly refill household goods",
+                "keywords_en": ["sustainable", "minimal", "circular", "everyday"],
+                "tone_en": "warm and understated",
+            },
         }
 
     if step == "slogan":
@@ -109,13 +115,17 @@ def response(step: str, brief: dict) -> dict | None:
         }
 
     if step == "story":
+        # 요건 5가 "300자 내외"이므로 목업도 그 범위(270~330자)를 맞춥니다.
+        # 목업 결과가 요건을 벗어나면 시연 화면에 "250자"가 찍혀 요건을
+        # 못 지킨 것처럼 보입니다.
         text = (
             f"{industry}은(는) 늘 같은 자리에서 시작됩니다. 쓰고 버리는 일이 너무 쉬워진 "
             "시대에, 우리는 한 번 더 쓰는 일이 왜 이렇게 번거로워졌는지 묻는 것에서 "
             f"출발했습니다. 우리가 믿는 것은 단순합니다. {first_kw}은(는) 특별한 결심이 "
             "아니라 손에 익은 습관이어야 한다는 것. 그래서 우리는 더 크게 외치는 대신 "
-            "더 쓰기 쉬운 물건을 만듭니다. 언젠가 이 선택이 선택이라고 불리지 않는 날, "
-            "그날을 위해 오늘의 번거로움을 대신 짊어지려 합니다."
+            "더 쓰기 쉬운 물건을 만듭니다. 담는 그릇을 가볍게, 다시 채우는 걸음을 짧게, "
+            "고르는 순간을 덜 고민스럽게. 언젠가 이 선택이 선택이라고 불리지 않는 날, "
+            "그날을 위해 오늘의 번거로움을 우리가 대신 짊어지려 합니다."
         )
         return {
             "story": {
@@ -171,14 +181,6 @@ def response(step: str, brief: dict) -> dict | None:
                     },
                 ],
             }
-        }
-
-    if step == "logo_prompt":
-        # 로고 프롬프트에 넣을 영문 변환 (gen_logo). 실패해도 한글로 대체됩니다.
-        return {
-            "industry_en": "eco-friendly refill household goods",
-            "keywords_en": ["sustainable", "minimal", "circular", "everyday"],
-            "tone_en": "warm and understated",
         }
 
     return None

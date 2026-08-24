@@ -159,7 +159,10 @@ def main() -> None:
     # ── 아래 여섯 단계는 서로 연결되어 있지 않습니다. 그래서 try가 없습니다.
     #    각 함수는 실패하면 예외 대신 None을 돌려주고 errors에 기록합니다.
     #    이 계약 하나가 요건 9를 구조로 보장합니다. (PRD §4.3)
-    result["naming"] = gen_naming.generate(data, errors=errors)
+    # 네이밍 호출은 후보 목록과 함께 "로고 프롬프트용 영문 재료"도 돌려줍니다.
+    # 영문 변환을 별도 호출로 두면 요구사항이 요구하지 않는 여섯 번째 LLM
+    # 호출이 생기므로, 스키마를 확장해 한 번에 받습니다 (gen_naming.SCHEMA).
+    result["naming"], english_concept = gen_naming.generate(data, errors=errors)
     result["slogans"] = gen_slogan.generate(data, errors=errors, naming=result["naming"])
     result["story"] = gen_story.generate(data, errors=errors)
     result["palette"] = gen_palette.generate(data, errors=errors)
@@ -186,6 +189,7 @@ def main() -> None:
         n=logo_n,
         naming=result["naming"],  # 소프트 의존 — None이어도 됩니다
         palette=result["palette"],
+        english=english_concept,
         errors=errors,
     )
     result["assets"]["logos"] = logos
@@ -193,8 +197,15 @@ def main() -> None:
 
     # ★ if도 try도 없이 무조건 실행됩니다.
     #   여섯 단계가 전부 실패해도 브리프 원본과 errors가 담긴 파일은 남습니다.
-    storage.save_json(result, out_dir)
-    logger.print_summary(result, out_dir, errors, time.perf_counter() - started)
+    result_path = storage.save_json(result, out_dir)
+    logger.print_summary(
+        result, out_dir, errors, time.perf_counter() - started, result_path=result_path
+    )
+
+    # 저장 실패는 요건 8의 유일한 필수 산출물이 없다는 뜻이므로 실패로 끝냅니다.
+    # 여기까지 왔으면 "계속 진행"할 다음 단계도 남아 있지 않습니다.
+    if result_path is None:
+        sys.exit(1)
 
 
 if __name__ == "__main__":

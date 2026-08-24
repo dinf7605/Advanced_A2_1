@@ -47,10 +47,12 @@ SCHEMA = {
                     },
                     "required": ["hex", "name", "usage"],
                 },
+                # maxItems 없음 — 4개가 오면 generate()가 앞 3개만 취해
+                # 요건("서브 2~3개")을 충족합니다. 검증으로 탈락시키면
+                # 기본 팔레트로 떨어져 LLM이 준 색을 전부 버리게 됩니다.
                 "subs": {
                     "type": "array",
                     "minItems": 2,
-                    "maxItems": 3,
                     "items": {
                         "type": "object",
                         "properties": {

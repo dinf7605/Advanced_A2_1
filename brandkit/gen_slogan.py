@@ -16,13 +16,16 @@ LABEL = "[2/7] 슬로건 생성 중..."
 # tone_note는 요건 4의 "톤앤매너에 맞는 문구"를 증명하는 필드입니다.
 # "맞는지"를 사람이 눈으로만 판단하면 검증이 안 되므로, 모델에게 근거를
 # 같이 내게 해서 확인 가능하게 만듭니다.
+#
+# maxItems를 넣지 않은 이유는 gen_naming.SCHEMA 주석과 같습니다. 4개가 오면
+# _clean()이 3개로 자르면 요건("3개")을 충족하는데, maxItems를 걸면 검증에서
+# 탈락해 재시도하고 2회째도 4개면 슬로건이 통째로 null이 됩니다.
 SCHEMA = {
     "type": "object",
     "properties": {
         "slogans": {
             "type": "array",
             "minItems": 3,
-            "maxItems": 3,
             "items": {
                 "type": "object",
                 "properties": {
