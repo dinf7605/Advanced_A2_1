@@ -1,0 +1,143 @@
+{
+  "generated_at": "2026-08-24T14:07:51+09:00",
+  "brief": {
+    "industry": "친환경 리필 생활용품",
+    "target": "환경에 관심 있는 20~30대 1인 가구",
+    "keywords": [
+      "지속가능",
+      "미니멀",
+      "순환",
+      "일상"
+    ],
+    "tone": "따뜻하고 담백한, 설교하지 않는",
+    "competitors": [
+      "알맹상점",
+      "지구샵"
+    ],
+    "notes": "영문 표기를 함께 제안해 주세요. 과장된 환경 구호는 피해 주세요."
+  },
+  "naming": [
+    {
+      "name_ko": "이음",
+      "name_en": "Ieum",
+      "meaning": "'잇다'의 명사형. 끊긴 흐름을 다시 잇는다는 뜻.",
+      "rationale": "키워드 '지속가능'를 한 단어로 압축했습니다."
+    },
+    {
+      "name_ko": "다시봄",
+      "name_en": "Dasibom",
+      "meaning": "'다시 봄(春)'과 '다시 보다'의 중의적 표현.",
+      "rationale": "친환경 리필 생활용품의 순환적 성격을 계절에 빗댔습니다."
+    },
+    {
+      "name_ko": "온담",
+      "name_en": "Ondam",
+      "meaning": "'온기'와 '담다'의 결합. 따뜻함을 담는 그릇.",
+      "rationale": "톤앤매너의 따뜻함을 이름 자체에 담았습니다."
+    },
+    {
+      "name_ko": "무늬",
+      "name_en": "Munui",
+      "meaning": "반복되어 하나의 결을 이루는 무늬.",
+      "rationale": "일상의 반복이 곧 브랜드의 태도라는 관점."
+    }
+  ],
+  "slogans": [
+    {
+      "text": "다시 쓰는 하루",
+      "angle": "감성",
+      "tone_note": "형용사를 덜어내고 명사로 마무리해 담백한 톤을 유지했습니다."
+    },
+    {
+      "text": "덜어내면 남는 것",
+      "angle": "기능",
+      "tone_note": "설교하지 않고 결과만 제시하는 문장 구조입니다."
+    },
+    {
+      "text": "오늘부터 한 번 더",
+      "angle": "행동유도",
+      "tone_note": "명령형 대신 청유의 여지를 남겨 부드럽게 유도합니다."
+    }
+  ],
+  "story": {
+    "text": "친환경 리필 생활용품은(는) 늘 같은 자리에서 시작됩니다. 쓰고 버리는 일이 너무 쉬워진 시대에, 우리는 한 번 더 쓰는 일이 왜 이렇게 번거로워졌는지 묻는 것에서 출발했습니다. 우리가 믿는 것은 단순합니다. 지속가능은(는) 특별한 결심이 아니라 손에 익은 습관이어야 한다는 것. 그래서 우리는 더 크게 외치는 대신 더 쓰기 쉬운 물건을 만듭니다. 언젠가 이 선택이 선택이라고 불리지 않는 날, 그날을 위해 오늘의 번거로움을 대신 짊어지려 합니다.",
+    "background": "쓰고 버리는 일이 너무 쉬워진 시대에 대한 문제의식",
+    "philosophy": "지속가능은(는) 결심이 아니라 습관이어야 한다",
+    "vision": "지속가능한 선택이 특별하지 않게 되는 날",
+    "char_count": 250
+  },
+  "palette": {
+    "main": {
+      "hex": "#1B4332",
+      "name": "딥 포레스트",
+      "usage": "로고·주요 버튼"
+    },
+    "subs": [
+      {
+        "hex": "#84A98C",
+        "name": "세이지 그린",
+        "usage": "강조·아이콘"
+      },
+      {
+        "hex": "#CAD2C5",
+        "name": "라이트 세이지",
+        "usage": "배경"
+      },
+      {
+        "hex": "#F4F1DE",
+        "name": "크림",
+        "usage": "여백·카드"
+      }
+    ],
+    "rationale": "자연에서 온 저채도 그린 계열로 담백한 톤을 유지했습니다.",
+    "is_fallback": false
+  },
+  "competitors": {
+    "analysis": [
+      {
+        "name": "알맹상점",
+        "positioning": "가치 소비를 앞세운 오프라인 중심 브랜드로 추정됩니다.",
+        "strength": "공개 정보 부족 — 커뮤니티 기반의 인지도로 보입니다."
+      },
+      {
+        "name": "지구샵",
+        "positioning": "가치 소비를 앞세운 오프라인 중심 브랜드로 추정됩니다.",
+        "strength": "공개 정보 부족 — 커뮤니티 기반의 인지도로 보입니다."
+      }
+    ],
+    "differentiation": [
+      {
+        "point": "구매가 아니라 반복을 설계한다",
+        "why": "첫 구매보다 두 번째 사용을 쉽게 만드는 데 집중합니다.",
+        "linked_keyword": "지속가능"
+      },
+      {
+        "point": "설교하지 않는 언어",
+        "why": "죄책감 대신 편의를 근거로 설득합니다.",
+        "linked_keyword": "일상"
+      },
+      {
+        "point": "일상 동선 안의 접점",
+        "why": "특별한 방문이 아니라 지나는 길에 들르게 만듭니다.",
+        "linked_keyword": "지속가능"
+      }
+    ],
+    "disclaimer": "AI가 공개 정보를 바탕으로 추정한 결과이며 사실 확인이 필요합니다."
+  },
+  "assets": {
+    "palette_image": "palette.png",
+    "logos": [
+      "logo_1.png",
+      "logo_2.png",
+      "logo_3.png"
+    ],
+    "logo_prompt": "A minimalist vector logo for a brand.\nIndustry: eco-friendly refill household goods\nBrand concept: sustainable, minimal, circular, everyday\nMood: warm and understated\nBrand concept name (for mood only, do not render it): Ieum\nPrimary color: #1B4332\nAccent colors: #84A98C, #CAD2C5, #F4F1DE\nStyle: flat vector, simple geometric symbol mark, centered, solid white background.\nNo text, no letters, no words, no numbers anywhere in the image."
+  },
+  "errors": [],
+  "meta": {
+    "llm_model": "gemini-3.6-flash",
+    "image_provider": "openai",
+    "mock": true,
+    "mock_mode": "1"
+  }
+}
