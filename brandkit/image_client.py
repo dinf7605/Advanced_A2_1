@@ -27,7 +27,6 @@ class ImageProvider:
 
     name = "?"
     key_env = "?"
-    max_per_request = 1  # 한 번의 요청으로 받을 수 있는 최대 장수
 
     def credentials(self) -> str | None:
         """키가 없으면 필요한 환경변수 이름을, 있으면 None을 돌려준다."""
@@ -67,8 +66,6 @@ class OpenAIImageProvider(ImageProvider):
 
     def __init__(self) -> None:
         self.model = config.OPENAI_IMAGE_MODEL
-        # dall-e-3는 요청당 1장만 받습니다. gpt-image-1 계열은 여러 장 가능.
-        self.max_per_request = 1 if self.model.startswith("dall-e") else 3
 
     def credentials(self) -> str | None:
         return None if config.openai_key() else self.key_env
@@ -78,6 +75,7 @@ class OpenAIImageProvider(ImageProvider):
         if self.model.startswith("dall-e"):
             # dall-e 계열만 response_format을 받습니다. gpt-image-1에 넣으면 오류가 납니다.
             request["response_format"] = "b64_json"
+            request["n"] = 1  # dall-e-3는 요청당 1장만 허용합니다
         return request
 
     def call(self, request: dict):
@@ -104,7 +102,6 @@ class OpenAIImageProvider(ImageProvider):
 class GeminiImageProvider(ImageProvider):
     name = "gemini"
     key_env = "GEMINI_API_KEY"
-    max_per_request = 1
 
     def __init__(self) -> None:
         self.model = config.GEMINI_IMAGE_MODEL
@@ -150,7 +147,9 @@ def resolve() -> ImageProvider | None:
 def generate_images(prompt: str, n: int, *, step: str, errors: list) -> list[bytes]:
     """PNG 바이트 리스트를 돌려준다. 실패하면 빈 리스트 (예외 없음).
 
-    부분 성공을 허용합니다 — 3장 요청에 2장만 오면 2장을 돌려줍니다.
+    부분 성공을 허용합니다 — n장 요청에 2장만 오면 2장을 돌려줍니다.
+    호출자(gen_logo)는 시안마다 형식 키워드를 바꿔 n=1로 부르므로, 여기서
+    부족한 장수를 채우려 재요청하지 않습니다.
     """
     if mock.enabled():
         reason = mock.failure_for(step)
@@ -180,15 +179,7 @@ def generate_images(prompt: str, n: int, *, step: str, errors: list) -> list[byt
         )
         return []
 
-    images: list[bytes] = []
-    while len(images) < n:
-        want = min(n - len(images), provider.max_per_request)
-        batch = _call_once(provider, prompt, want, step=step, errors=errors)
-        if not batch:
-            break  # 한 번 실패하면 같은 이유로 계속 실패합니다
-        images.extend(batch)
-
-    return images[:n]
+    return _call_once(provider, prompt, n, step=step, errors=errors)[:n]
 
 
 def _call_once(

@@ -38,10 +38,12 @@ SCHEMA = {
                         "required": ["name", "positioning", "strength"],
                     },
                 },
+                # 과제 요건 B1은 개수를 지정하지 않습니다("차별화 포인트를 제안한다").
+                # 프롬프트로 3개를 요청하되, 2개가 와도 요건은 충족되므로
+                # 검증으로 탈락시키지 않습니다. 초과분만 generate()에서 자릅니다.
                 "differentiation": {
                     "type": "array",
-                    "minItems": 3,
-                    "maxItems": 3,
+                    "minItems": 1,
                     "items": {
                         "type": "object",
                         "properties": {
@@ -88,7 +90,7 @@ def generate(data: dict, *, errors: list) -> dict | None:
 
     payload = dict(result.get("competitors") or {})
     analysis = [a for a in (payload.get("analysis") or []) if isinstance(a, dict)]
-    points = [d for d in (payload.get("differentiation") or []) if isinstance(d, dict)]
+    points = [d for d in (payload.get("differentiation") or []) if isinstance(d, dict)][:3]
 
     if not analysis and not points:
         logger.record_error(

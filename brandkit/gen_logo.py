@@ -11,8 +11,7 @@ from __future__ import annotations
 
 import os
 
-from . import brief as brief_mod
-from . import image_client, llm, logger
+from . import image_client, logger
 
 STEP = "logo"
 LABEL = "[7/7] 로고 시안 생성 중..."
@@ -29,36 +28,9 @@ VARIANTS = [
 ]
 
 # 이미지 모델은 대체로 영문 프롬프트에서 결과가 안정적입니다.
-# 이 변환도 실패할 수 있으므로, 실패하면 한글을 그대로 씁니다.
-TRANSLATE_SCHEMA = {
-    "type": "object",
-    "properties": {
-        "industry_en": {"type": "string"},
-        "keywords_en": {"type": "array", "minItems": 1, "items": {"type": "string"}},
-        "tone_en": {"type": "string"},
-    },
-    "required": ["industry_en", "keywords_en"],
-}
-
-
-def _english_context(data: dict, *, errors: list) -> dict | None:
-    """브리프의 업종·키워드·톤을 영문으로 바꾼다. 실패하면 None."""
-    if llm.disabled():  # 이미 LLM을 접은 상태라면 호출하지 않습니다
-        return None
-
-    prompt = (
-        "다음 한국어 브랜드 정보를 이미지 생성 프롬프트에 넣을 영어 표현으로 옮기세요.\n\n"
-        f"업종: {data['industry']}\n"
-        f"키워드: {brief_mod.keywords_text(data)}\n"
-        f"톤앤매너: {brief_mod.tone_text(data)}\n\n"
-        "조건:\n"
-        "- 직역보다 이미지 모델이 이해하기 쉬운 짧은 명사구로 옮깁니다.\n"
-        "- 설명 문장을 만들지 말고 단어나 짧은 구로만 씁니다."
-    )
-    # 보조 호출이므로 재시도하지 않습니다 — 실패해도 한글로 진행할 수 있습니다.
-    return llm.generate_json(
-        prompt, TRANSLATE_SCHEMA, step="logo_prompt", errors=errors, max_retry=0, brief=data
-    )
+# 영문 재료(english)는 네이밍 호출에서 english_concept으로 함께 받아옵니다
+# (gen_naming.SCHEMA 참고). 여기서 별도 호출을 하지 않는 이유는 요구사항이
+# 요구하지 않는 LLM 호출을 늘리지 않기 위해서입니다. 없으면 한글을 그대로 씁니다.
 
 
 def build_prompt(
@@ -160,11 +132,10 @@ def generate(
     n: int = 2,
     naming: list | None = None,
     palette: dict | None = None,
+    english: dict | None = None,
     errors: list,
 ) -> tuple[list[str], str | None]:
     """로고 시안을 만들어 저장하고 (파일명 리스트, 대표 프롬프트)를 돌려준다."""
-    english = _english_context(data, errors=errors)  # 진행 줄을 열기 전에 끝냅니다
-
     logger.step_start(f"{LABEL} ({n}장)")
     base_prompt = build_prompt(data, naming=naming, palette=palette, english=english)
 
