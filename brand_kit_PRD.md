@@ -324,7 +324,10 @@ def step_start(label: str) -> None: ...            # "[3/7] 슬로건 생성 중
 def step_ok(label: str, detail: str = "") -> None: ...   # "✅ 3개 생성"
 def step_fail(label: str, reason: str) -> None: ...      # "❌ 실패 — 인증 오류(401)"
 def step_skip(label: str, reason: str) -> None: ...      # "⚠️  건너뜀 — ..."
-def print_summary(result: dict, out_dir: str, errors: list) -> None: ...  # 마지막 요약 블록
+def print_summary(result: dict, out_dir: str, errors: list, elapsed: float,
+                  *, result_path: str | None) -> None: ...
+    # result_path=None 이면 결과 JSON 저장 실패. 받지 않으면 **없는 파일을
+    # "저장됨"으로 안내**하게 된다 — 요건 8의 유일한 필수 산출물이므로 구분 필수.
 
 def record_error(errors: list, *, step: str, type_: str, message: str) -> None:
     """errors에 표준 형식으로 한 건 추가한다 (§9.4).
@@ -333,7 +336,8 @@ def record_error(errors: list, *, step: str, type_: str, message: str) -> None:
 
 # ── 각 생성 모듈이 지켜야 할 공통 형태 (P1·P3·P4·P5) ───────────────
 def generate(brief: dict, *, errors: list):
-    """브리프를 받아 자기 섹션을 만든다. 실패하면 None. 예외를 던지지 않는다."""
+    """브리프를 받아 자기 섹션을 만든다. 실패하면 None. 예외를 던지지 않는다.
+    예외: gen_naming.generate는 (후보 리스트, 영문 컨셉) 튜플을 돌려준다 (§7.2)."""
 ```
 
 > **`errors`를 인자로 받아 `append` 하는 이유** — 리스트는 가변 객체라 함수 안에서 `append` 하면
@@ -563,7 +567,7 @@ NAMING_SCHEMA = {
   "type": "object",
   "properties": {
     "naming": {
-      "type": "array", "minItems": 3, "maxItems": 5,
+      "type": "array", "minItems": 3,          # ★ maxItems를 넣지 않는다 (아래 표 참고)
       "items": {
         "type": "object",
         "properties": {
@@ -585,7 +589,7 @@ NAMING_SCHEMA = {
 | 검사 | 처리 |
 |------|------|
 | 개수가 3 미만 | `errors`에 `type:"invalid"` 기록 후 **1회 재시도** |
-| 개수가 5 초과 | 앞에서 5개만 취함 (재시도하지 않음 — 요건은 충족됨) |
+| 개수가 5 초과 | 앞에서 5개만 취함 (재시도하지 않음 — 요건은 충족됨). **그래서 스키마에 `maxItems`를 넣지 않는다** — 넣으면 6개 응답이 검증에서 탈락해 재시도로 이어지고, 2회째도 6개면 섹션이 통째로 `null`이 된다. 같은 이유로 슬로건·팔레트 서브컬러·차별화 포인트에도 `maxItems`가 없다 |
 | `name_ko` 중복 | 중복 제거 후 개수 재확인 |
 | `meaning`이 빈 문자열 | 해당 항목 제거 후 개수 재확인 |
 
@@ -784,7 +788,7 @@ Style: flat vector, simple geometric symbol mark, centered,
 | **`no text, no letters` 를 반드시 넣는다** | 이미지 생성 모델은 글자를 자주 뭉갭니다. 브랜드명을 넣으라고 하면 철자가 깨진 시안이 나옵니다. **심볼 마크만 받고 글자는 나중에 얹는 것이 실무 방식이기도 합니다** |
 | 배경을 `solid white`로 고정 | 시안 2~3장의 배경이 제각각이면 비교가 안 됩니다 |
 | `flat vector` / `centered` | 사실적 3D 렌더링이 나오면 로고로 쓸 수 없습니다 |
-| 영문 프롬프트 | 이미지 모델은 대체로 영문 프롬프트에서 결과가 안정적입니다. 브리프의 한글 키워드를 **LLM으로 영문 변환**해 넣습니다 (이 변환도 실패할 수 있으므로, 실패하면 한글 그대로 사용) |
+| 영문 프롬프트 | 이미지 모델은 대체로 영문 프롬프트에서 결과가 안정적입니다. 영문 재료는 **네이밍 호출의 `english_concept` 필드로 함께 받습니다** (§7.2) — 별도 호출로 두면 요구사항이 요구하지 않는 **여섯 번째 LLM 호출**이 생기고, 하루 20회 한도에서 실행 4회분이 3회분으로 줄어듭니다. 없으면 한글 브리프를 그대로 씁니다 |
 | 시안 간 변화 | 2~3장을 **완전히 같은 프롬프트로** 요청하지 않고, `symbol mark` / `abstract monogram` / `emblem` 처럼 **형식만 바꿔** 서로 다른 시안이 나오게 합니다 |
 
 ---
@@ -1000,6 +1004,7 @@ json.dump(result, f, ensure_ascii=False, indent=2)
 | E14 | 이미지 다운로드 실패 (URL 만료 등) | Degraded | 성공한 장수만 저장 |
 | E15 | 응답이 유효한 PNG가 아님 (매직넘버·크기 불일치) | Degraded | **저장 전에 검증해 아예 만들지 않음** + `errors` 기록. 다른 이미지 형식이면 Pillow가 있을 때만 PNG로 변환 |
 | E16 | 출력 폴더 생성 실패 | Fatal | 저장할 곳이 없으면 산출물이 하나도 안 남음 → exit 1 |
+| E17 | `brand_result.json` 저장 실패 | Fatal | 요약에 **"저장하지 못했다"를 명시**하고 파일 목록에서 제외한 뒤 exit 1. 여기까지 왔으면 "계속 진행"할 다음 단계가 없고, 요건 8의 유일한 필수 산출물이 없는 상태다 |
 
 > **E4를 Fatal로 하지 않는 이유** — LLM 키가 없어도 요건 8("출력 폴더에 저장")은 지킬 수 있고,
 > 사용자는 **"키만 넣으면 되는구나"라는 정보를 결과 파일로도 받게 됩니다.** 반면 E16은
